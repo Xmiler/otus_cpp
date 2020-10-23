@@ -1,6 +1,5 @@
 #pragma once
 
-#include <optional>
 #include "types.hpp"
 
 std::vector<std::string> split(const std::string &, char);
