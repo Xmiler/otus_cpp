@@ -1,8 +1,10 @@
 #pragma once
 
+#include <cstdint>
+#include <array>
 #include <vector>
 #include <string>
 
-using ip_part_t = std::string;
-using ip_t = std::vector<ip_part_t>;
+using byte_t = std::uint8_t;
+using ip_t = std::array<byte_t, 4>;
 using ips_t = std::vector<ip_t>;
