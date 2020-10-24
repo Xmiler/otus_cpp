@@ -4,9 +4,9 @@ before_install:
   - sudo apt-get update -qq
 install:
   - sudo apt-get install gcc-9 -qq
-  - sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-9 90
+  - sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-7 90
 script:
-- CC=gcc CXX=gcc cmake .
+- cmake .
 - cmake --build .
 - cmake --build . --target package
 deploy:
