@@ -1,4 +1,10 @@
 language: cpp
+before_install:
+  - sudo add-apt-repository ppa:ubuntu-toolchain-r/test -y
+  - sudo apt update
+install:
+  - sudo apt install gcc-9
+  - sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-9 90
 script:
 - cmake .
 - cmake --build .
