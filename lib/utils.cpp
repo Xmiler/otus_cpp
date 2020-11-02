@@ -28,27 +28,22 @@ std::pair<ips_t, bool> ips_read_from_cin() {
         ip_t ip;
         {
             int i = 0;
-            int16_t byte_16 = 0;
+            unsigned long byte_ul= 0;
             for (const std::string &s : split(v.at(0), '.')) {
-                // sorry for that :(
-                if ( s.length() > 3 ) {
-                    std::cout << "Error! Unacceptable format of input: " << line << std::endl;
-                    return {{}, false};
-                }
                 if ( i > 4 )
                     break;
                 try {
-                    byte_16 = std::stoi(s);
+                    byte_ul = std::stoul(s);
                 }
-                catch (const std::invalid_argument&) {
+                catch (const std::exception& e) {
                     std::cout << "Error! Unacceptable format of input: " << line << std::endl;
                     return {{}, false};
                 }
-                if ( ! (byte_16 >=0 && byte_16 < 256 ) ) {
+                if ( ! (byte_ul >= 0 && byte_ul < 256 ) ) {
                     std::cout << "Error! Unacceptable format of input: " << line << std::endl;
                     return {{}, false};
                 }
-                ip[i] = byte_16;
+                ip[i] = byte_ul;
 
                 i++;
             }
