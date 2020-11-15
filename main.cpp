@@ -1,5 +1,6 @@
 #include <iostream>
 #include <map>
+#include <vector>
 
 template <typename T, size_t N>
 class ArenaAllocator {
@@ -57,6 +58,63 @@ void print(const T &m) {
     }
 }
 
+namespace otus {
+
+    template<typename T>
+    class List {
+        struct Node {
+            explicit Node(T value_) : value(std::move(value_)) {}
+
+            T value;
+            Node *next;
+        };
+
+        class const_iterator {
+        public:
+            explicit const_iterator(Node* ptr) : ptr_(ptr) {}
+            const_iterator operator++(int) { ptr_=ptr_->next; return *this; };
+            const Node* operator->() { return ptr_; };
+        private:
+            Node *ptr_;
+        };
+
+    public:
+
+        List() = default;
+        ~List() {
+            for ( Node* ptr_iter = ptr_head; ptr_iter != nullptr; ) {
+                auto ptr_iter_ = ptr_iter->next;
+                delete ptr_iter;
+                ptr_iter = ptr_iter_;
+            }
+        }
+
+        const_iterator cbegin() const {
+            return const_iterator(ptr_head);
+        }
+
+        const_iterator cend() const {
+            return const_iterator(ptr_tail);
+        }
+
+        void push_back(T el) {
+            Node *ptr_new = new Node(std::move(el));
+            if (ptr_head == nullptr) {
+                ptr_head = ptr_new;
+                ptr_tail = ptr_head;
+            }
+            else {
+                ptr_tail->next = ptr_new;
+                ptr_tail = ptr_new;
+            }
+        }
+
+    private:
+        Node* ptr_head = nullptr;
+        Node* ptr_tail = nullptr;
+    };
+}
+
 int main() {
 
     std::map<int, int, std::less<>> m1;
@@ -65,6 +123,9 @@ int main() {
     std::map<int, int, std::less<>, ArenaAllocator<std::pair<const int, int>, 10>> m2;
     fill(m2);
     print(m2);
+
+    otus::List<int> l1;
+    l1.push_back(1);
 
     return 0;
 }
