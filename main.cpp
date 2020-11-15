@@ -45,23 +45,38 @@ private:
 };
 
 template <typename T>
-void fill(T &m) {
+void fill_map(T &m) {
     m[0] = 1;
     for ( int i = 1; i < 10; ++i )
         m[i] = m[i-1] * i;
 }
 
 template <typename T>
-void print(const T &m) {
+void print_map(const T &m) {
     for (auto [k, v] : m) {
         std::cout << k << " " << v << std::endl;
+    }
+}
+
+template <typename T>
+void fill_list(T &l) {
+    l.push_back(1);
+    for ( int i = 1; i < 10; ++i ) {
+        l.push_back(l.back()*i);
+    }
+}
+
+template <typename T>
+void print_list(const T &l) {
+    for ( const int &el : l ) {
+        std::cout << el << std::endl;
     }
 }
 
 namespace otus {
 
     template<typename T>
-    class List {
+    class list {
         struct Node {
             explicit Node(T value_) : value(std::move(value_)) {}
 
@@ -72,16 +87,19 @@ namespace otus {
         class const_iterator {
         public:
             explicit const_iterator(Node* ptr) : ptr_(ptr) {}
+            const_iterator operator++() { auto tmp_ = ptr_; ptr_=ptr_->next; return const_iterator(tmp_); };
             const_iterator operator++(int) { ptr_=ptr_->next; return *this; };
-            const Node* operator->() { return ptr_; };
+            bool operator!=(const const_iterator &other) { return other.ptr_ != this->ptr_; };
+            const T* operator->() { return &ptr_->value; };
+            const T& operator*() { return ptr_->value; }
         private:
             Node *ptr_;
         };
 
     public:
 
-        List() = default;
-        ~List() {
+        list() = default;
+        ~list() {
             for ( Node* ptr_iter = ptr_head; ptr_iter != nullptr; ) {
                 auto ptr_iter_ = ptr_iter->next;
                 delete ptr_iter;
@@ -89,12 +107,16 @@ namespace otus {
             }
         }
 
-        const_iterator cbegin() const {
+        const_iterator begin() const {
             return const_iterator(ptr_head);
         }
 
-        const_iterator cend() const {
-            return const_iterator(ptr_tail);
+        const_iterator end() const {
+            return const_iterator(nullptr);
+        }
+
+        T back() {
+            return ptr_tail->value;
         }
 
         void push_back(T el) {
@@ -118,14 +140,15 @@ namespace otus {
 int main() {
 
     std::map<int, int, std::less<>> m1;
-    fill(m1);
+    fill_map(m1);
 
     std::map<int, int, std::less<>, ArenaAllocator<std::pair<const int, int>, 10>> m2;
-    fill(m2);
-    print(m2);
+    fill_map(m2);
+    print_map(m2);
 
-    otus::List<int> l1;
-    l1.push_back(1);
+    otus::list<int> l1;
+    fill_list(l1);
+    print_list(l1);
 
     return 0;
 }
