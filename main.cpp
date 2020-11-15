@@ -39,6 +39,15 @@ public:
     void deallocate(T* p, std::size_t) {
     }
 
+    template <typename U, typename ...Args>
+    void construct(U* p, Args &&...args) {
+        new(p) U(std::forward<Args>(args)...);
+    }
+
+    void destroy(T *p) {
+        p->~T();
+    }
+
 private:
     T* arena_ptr = nullptr;
     int arena_position = -1;
@@ -154,7 +163,10 @@ int main() {
 
     otus::list<int> l1;
     fill_list(l1);
-    print_list(l1);
+
+    otus::list<int, ArenaAllocator<int, 10>> l2;
+    fill_list(l2);
+    print_list(l2);
 
     return 0;
 }
