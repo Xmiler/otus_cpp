@@ -1,6 +1,6 @@
 #include <iostream>
+#include <memory>
 #include <map>
-#include <vector>
 
 template <typename T, size_t N>
 class ArenaAllocator {
@@ -75,7 +75,7 @@ void print_list(const T &l) {
 
 namespace otus {
 
-    template<typename T>
+    template<typename T, typename Alloc=std::allocator<T>>
     class list {
         struct Node {
             explicit Node(T value_) : value(std::move(value_)) {}
@@ -97,12 +97,14 @@ namespace otus {
         };
 
     public:
+        using _Tp_alloc_type = typename Alloc::template rebind<Node>::other;
 
         list() = default;
         ~list() {
             for ( Node* ptr_iter = ptr_head; ptr_iter != nullptr; ) {
                 auto ptr_iter_ = ptr_iter->next;
-                delete ptr_iter;
+                allocator.destroy(ptr_iter);
+                allocator.deallocate(ptr_iter, 1);
                 ptr_iter = ptr_iter_;
             }
         }
@@ -120,7 +122,10 @@ namespace otus {
         }
 
         void push_back(T el) {
-            Node *ptr_new = new Node(std::move(el));
+
+            auto ptr_new = allocator.allocate(1);
+            allocator.construct(ptr_new, std::move(el));
+
             if (ptr_head == nullptr) {
                 ptr_head = ptr_new;
                 ptr_tail = ptr_head;
@@ -134,6 +139,7 @@ namespace otus {
     private:
         Node* ptr_head = nullptr;
         Node* ptr_tail = nullptr;
+        _Tp_alloc_type allocator;
     };
 }
 
