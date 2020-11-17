@@ -2,56 +2,59 @@
 #include <memory>
 #include <map>
 
-template <typename T, size_t N>
-class ArenaAllocator {
-public:
-    using value_type = T;
-    static const size_t arena_size = N;
+namespace otus {
 
-    explicit ArenaAllocator() {
-        arena_ptr = static_cast<T*>(std::malloc(arena_size*sizeof(T)));
-        if ( arena_ptr == nullptr )
-            throw std::bad_alloc();
+    template<typename T, size_t N>
+    class ArenaAllocator {
+    public:
+        using value_type = T;
+        static const size_t arena_size = N;
+
+        explicit ArenaAllocator() {
+            arena_ptr = static_cast<T *>(std::malloc(arena_size * sizeof(T)));
+            if (arena_ptr == nullptr)
+                throw std::bad_alloc();
+        };
+
+        ~ArenaAllocator() {
+            std::free(static_cast<void *>(arena_ptr));
+        }
+
+        template<typename T2, size_t N2>
+        explicit ArenaAllocator(const ArenaAllocator<T2, N2> &) {
+        }
+
+        template<typename T2>
+        struct rebind {
+            using other = ArenaAllocator<T2, N>;
+        };
+
+        T *allocate(std::size_t n) {
+
+            arena_position++;
+            if (arena_position >= N)
+                throw std::runtime_error("memory limit is exceeded");
+
+            return &arena_ptr[arena_position];
+        }
+
+        void deallocate(T *p, std::size_t) {
+        }
+
+        template<typename U, typename ...Args>
+        void construct(U *p, Args &&...args) {
+            new(p) U(std::forward<Args>(args)...);
+        }
+
+        void destroy(T *p) {
+            p->~T();
+        }
+
+    private:
+        T *arena_ptr = nullptr;
+        int arena_position = -1;
     };
-
-    ~ArenaAllocator() {
-        std::free(static_cast<void*>(arena_ptr));
-    }
-
-    template <typename T2, size_t N2>
-    explicit ArenaAllocator(const ArenaAllocator<T2, N2> &) {
-    }
-
-    template <typename T2>
-    struct rebind {
-        using other = ArenaAllocator<T2, N>;
-    };
-
-    T* allocate(std::size_t n) {
-
-        arena_position++;
-        if ( arena_position >= N )
-            throw std::runtime_error("memory limit is exceeded");
-
-        return &arena_ptr[arena_position];
-    }
-
-    void deallocate(T* p, std::size_t) {
-    }
-
-    template <typename U, typename ...Args>
-    void construct(U* p, Args &&...args) {
-        new(p) U(std::forward<Args>(args)...);
-    }
-
-    void destroy(T *p) {
-        p->~T();
-    }
-
-private:
-    T* arena_ptr = nullptr;
-    int arena_position = -1;
-};
+}
 
 template <typename T>
 void fill_map(T &m) {
@@ -157,14 +160,14 @@ int main() {
     std::map<int, int, std::less<>> m1;
     fill_map(m1);
 
-    std::map<int, int, std::less<>, ArenaAllocator<std::pair<const int, int>, 10>> m2;
+    std::map<int, int, std::less<>, otus::ArenaAllocator<std::pair<const int, int>, 10>> m2;
     fill_map(m2);
     print_map(m2);
 
     otus::list<int> l1;
     fill_list(l1);
 
-    otus::list<int, ArenaAllocator<int, 10>> l2;
+    otus::list<int, otus::ArenaAllocator<int, 10>> l2;
     fill_list(l2);
     print_list(l2);
 
