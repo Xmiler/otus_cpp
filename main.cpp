@@ -16,7 +16,7 @@ struct is_vector_or_list<std::list<T>> : std::true_type {};
 template <typename T,
           typename std::enable_if<std::is_integral<T>::value>::type* = nullptr>
 void print_ip(const T &ip) {
-    auto *ptr = const_cast<uint8_t *>(reinterpret_cast<const uint8_t *>(&ip)) ;
+    const auto *ptr = reinterpret_cast<const uint8_t *>(&ip);
     for ( int i = 0; i < sizeof(ip); ++i ) {
         std::cout << static_cast<int>(ptr[i]);  // make it printable
         if ( i < sizeof(ip) - 1 )
