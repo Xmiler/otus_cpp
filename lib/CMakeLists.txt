@@ -1,1 +1,0 @@
-add_library(ip_filter_lib STATIC utils.cpp reverse_sort.cpp filter.cpp)
