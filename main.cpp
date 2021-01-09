@@ -3,57 +3,12 @@
 
 namespace otus {
 
-    template <typename T>
-    class SparseMatrix;
-
-    template <typename T>
-    class SparseMatrixValue {
-    public:
-        SparseMatrixValue(SparseMatrix<T> *ptr_sparse_matrix, int64_t y, int64_t x) :
-            m_ptr_sparse_matrix(ptr_sparse_matrix), m_y(y), m_x(x) {};
-        ~SparseMatrixValue() = default;
-
-        SparseMatrixValue& operator=(T value) {
-            m_ptr_sparse_matrix->add_value(m_y, m_x, value);
-            return *this;
-        }
-
-        T get_value() const {
-            return m_ptr_sparse_matrix->get_value(m_y, m_x);
-        }
-
-    private:
-        SparseMatrix<T> *m_ptr_sparse_matrix;
-        int64_t m_y;
-        int64_t m_x;
-    };
-
-    template <typename T>
-    std::ostream& operator<<(std::ostream& os, const SparseMatrixValue<T> &sparse_matrix_value) {
-        os << sparse_matrix_value.get_value();
-        return os;
-    }
-
-    template <typename T>
-    class SparseMatrixRow {
-    public:
-        SparseMatrixRow(SparseMatrix<T> *ptr_sparse_matrix, int64_t y) :
-            m_ptr_sparse_matrix(ptr_sparse_matrix), m_y(y){};
-        ~SparseMatrixRow() = default;
-
-        SparseMatrixValue<T> operator[](int64_t x) {
-            return SparseMatrixValue(m_ptr_sparse_matrix, m_y, x);
-        }
-
-    private:
-        SparseMatrix<T> *m_ptr_sparse_matrix;
-        int64_t m_y;
-    };
-
-    template <typename T>
+    template <typename T, T N>
     class SparseMatrix {
+        const static T default_value = N;
+
     public:
-        explicit SparseMatrix(T default_value = T(0)) : m_default_value(default_value) {};
+        SparseMatrix() = default;
         ~SparseMatrix() = default;
 
         using key_t=std::tuple<int64_t, int64_t>;
@@ -64,12 +19,52 @@ namespace otus {
         };
         using map_t=std::unordered_map<key_t, T, key_hash>;
 
+        class Value {
+        public:
+            Value(SparseMatrix<T, N> *ptr_sparse_matrix, int64_t y, int64_t x) :
+                    m_ptr_sparse_matrix(ptr_sparse_matrix), m_y(y), m_x(x) {};
+            ~Value() = default;
+
+            Value& operator=(const T& value) {
+                m_ptr_sparse_matrix->set_value(m_y, m_x, value);
+                return *this;
+            }
+
+            operator T() const {
+                return m_ptr_sparse_matrix->get_value(m_y, m_x);
+            }
+
+        private:
+            SparseMatrix<T, N> *m_ptr_sparse_matrix;
+            int64_t m_y;
+            int64_t m_x;
+        };
+
+        class Row {
+        public:
+            Row(SparseMatrix<T, N> *ptr_sparse_matrix, int64_t y) :
+                    m_ptr_sparse_matrix(ptr_sparse_matrix), m_y(y){};
+            ~Row() = default;
+
+            Value operator[](int64_t x) {
+                return Value(m_ptr_sparse_matrix, m_y, x);
+            }
+
+            T operator[] (int64_t x) const {
+                return m_ptr_sparse_matrix->get_value(m_y, x);
+            }
+
+        private:
+            SparseMatrix<T, N> *m_ptr_sparse_matrix;
+            int64_t m_y;
+        };
+
         size_t size() {
             return m_data.size();
         };
 
-        SparseMatrixRow<T> operator[](int64_t y) {
-            return SparseMatrixRow<T>(this, y);
+        Row operator[](int64_t y) {
+            return Row(this, y);
         }
 
         struct Iterator {
@@ -99,47 +94,46 @@ namespace otus {
             return Iterator(m_data.end());
         }
 
-        void add_value(int64_t y, int64_t x, T value) {
+        void set_value(int64_t y, int64_t x, T value) {
             auto coords = std::make_tuple(y, x);
             auto it = m_data.find(coords);
-            if (it == m_data.end() && value != m_default_value) {
+            if (it == m_data.end() && value != default_value) {
                 m_data[coords] = value;
             }
-            else if (it != m_data.end() && value == m_default_value) {
+            else if (it != m_data.end() && value == default_value) {
                 m_data.erase(it->first);
             }
         }
 
-        T get_value(int64_t y, int64_t x) {
+        T get_value(int64_t y, int64_t x) const {
             auto it = m_data.find(std::make_tuple(y, x));
             if (it == m_data.end())
-                return m_default_value;
+                return default_value;
             else
                 return it->second;
         }
 
     private:
         map_t m_data;
-        T m_default_value;
     };
+
 }
+
 
 int main() {
 
-    otus::SparseMatrix<int> matrix(-1);
+    otus::SparseMatrix<int, -1> matrix;
 
-    std::cout << matrix[0][0] << std::endl;
     std::cout << matrix.size() << std::endl;
 
-    matrix[100][100] = 314;
+//    (matrix[100][100] = 314) = 413;
+
     std::cout << matrix[100][100] << std::endl;
 
     std::cout << matrix.size() << std::endl;
 
-    for(const auto c : matrix) {
-        auto [x, y, v] = c;
+    for(const auto& [x, y, v] : matrix) {
         std::cout << x << y << v << std::endl;
     }
-
     return 0;
 }
