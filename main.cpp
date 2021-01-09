@@ -59,7 +59,7 @@ namespace otus {
             int64_t m_y;
         };
 
-        size_t size() {
+        size_t size() const {
             return m_data.size();
         };
 
@@ -100,8 +100,11 @@ namespace otus {
             if (it == m_data.end() && value != default_value) {
                 m_data[coords] = value;
             }
-            else if (it != m_data.end() && value == default_value) {
-                m_data.erase(it->first);
+            else if (it != m_data.end()) {
+                if (value == default_value)
+                    m_data.erase(it->first);
+                else
+                    m_data[coords] = value;
             }
         }
 
@@ -126,7 +129,7 @@ int main() {
 
     std::cout << matrix.size() << std::endl;
 
-//    (matrix[100][100] = 314) = 413;
+    (matrix[100][100] = 314) = 413;
 
     std::cout << matrix[100][100] << std::endl;
 
