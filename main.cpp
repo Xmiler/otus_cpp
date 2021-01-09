@@ -18,7 +18,6 @@ namespace otus {
             return *this;
         }
 
-        [[nodiscard]]
         T get_value() const {
             return m_ptr_sparse_matrix->get_value(m_y, m_x);
         }
@@ -57,12 +56,47 @@ namespace otus {
         explicit SparseMatrix(T default_value = T(0)) : m_default_value(default_value) {};
         ~SparseMatrix() = default;
 
-        int64_t size() {
+        using key_t=std::tuple<int64_t, int64_t>;
+        struct key_hash : public std::unary_function<key_t, size_t> {
+            size_t operator()(const key_t& key) const {
+                return std::get<0>(key) ^ std::get<1>(key);
+            }
+        };
+        using map_t=std::unordered_map<key_t, T, key_hash>;
+
+        size_t size() {
             return m_data.size();
         };
 
         SparseMatrixRow<T> operator[](int64_t y) {
             return SparseMatrixRow<T>(this, y);
+        }
+
+        struct Iterator {
+            using value_type=std::tuple<int64_t, int64_t, T>;
+            using difference_type=std::ptrdiff_t;
+            using pointer=value_type*;
+            using reference=value_type&;
+            using iterator_category=std::input_iterator_tag;
+
+            explicit Iterator(typename map_t::const_iterator ptr) : m_ptr(ptr) {};
+            value_type operator*() const { return std::make_tuple(std::get<0>(m_ptr->first), std::get<1>(m_ptr->first), m_ptr->second); }
+            pointer operator->() { return m_ptr; }
+            Iterator operator++() { m_ptr++; return *this; };
+            Iterator operator++(int) { Iterator tmp = *this; ++(*this); return tmp; };
+            friend bool operator==(const Iterator& a, const Iterator& b) { return a.m_ptr == b.m_ptr; };
+            friend bool operator!=(const Iterator& a, const Iterator& b) { return a.m_ptr != b.m_ptr; };
+
+        private:
+            typename map_t::const_iterator m_ptr;
+        };
+
+        Iterator begin() {
+            return Iterator(m_data.begin());
+        }
+
+        Iterator end() {
+            return Iterator(m_data.end());
         }
 
         void add_value(int64_t y, int64_t x, T value) {
@@ -85,27 +119,27 @@ namespace otus {
         }
 
     private:
-        using key_t=std::tuple<int64_t, int64_t>;
-        struct key_hash : public std::unary_function<key_t, size_t> {
-            size_t operator()(const key_t& key) const {
-                return std::get<0>(key) ^ std::get<1>(key);
-            }
-        };
-        std::unordered_map<key_t, T, key_hash> m_data;
+        map_t m_data;
         T m_default_value;
     };
 }
 
 int main() {
 
+    otus::SparseMatrix<int> matrix(-1);
 
-    otus::SparseMatrix<int> smt;
+    std::cout << matrix[0][0] << std::endl;
+    std::cout << matrix.size() << std::endl;
 
-    std::cout << smt[0][100] << std::endl;
-    smt[0][100] = 1;
-    std::cout << smt[0][100] << std::endl;
-    smt[0][100] = 0;
-    std::cout << smt[0][100] << std::endl;
+    matrix[100][100] = 314;
+    std::cout << matrix[100][100] << std::endl;
+
+    std::cout << matrix.size() << std::endl;
+
+    for(const auto c : matrix) {
+        auto [x, y, v] = c;
+        std::cout << x << y << v << std::endl;
+    }
 
     return 0;
 }
