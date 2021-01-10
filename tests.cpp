@@ -44,7 +44,7 @@ BOOST_AUTO_TEST_CASE (fill_and_make_empty_again) {
 
 }
 
-BOOST_AUTO_TEST_CASE (canonical_assignment) {
+BOOST_AUTO_TEST_CASE (check_canonical_assignment) {
     constexpr int default_value = -1;
 
     otus::SparseMatrix<int, default_value> matrix;
@@ -67,7 +67,6 @@ BOOST_AUTO_TEST_CASE (check_itetator) {
         memory.insert(i*100+i*10+i);
     }
     BOOST_CHECK_EQUAL(memory.size(), num);
-
 
     for ( const auto& [x, y, v] : matrix )
         memory.erase(x*100+y*10+v);

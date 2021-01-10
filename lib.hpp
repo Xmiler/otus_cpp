@@ -11,7 +11,7 @@ namespace otus {
         SparseMatrix() = default;
         ~SparseMatrix() = default;
 
-        using key_t=std::tuple<int64_t, int64_t>;
+        using key_t=std::tuple<size_t, size_t>;
         struct key_hash : public std::unary_function<key_t, size_t> {
             size_t operator()(const key_t& key) const {
                 return std::get<0>(key) ^ std::get<1>(key);
@@ -21,7 +21,7 @@ namespace otus {
 
         class Value {
         public:
-            Value(SparseMatrix<T, N> *ptr_sparse_matrix, int64_t y, int64_t x) :
+            Value(SparseMatrix<T, N> *ptr_sparse_matrix, size_t y, size_t x) :
                     m_ptr_sparse_matrix(ptr_sparse_matrix), m_y(y), m_x(x) {};
             ~Value() = default;
 
@@ -36,39 +36,39 @@ namespace otus {
 
         private:
             SparseMatrix<T, N> *m_ptr_sparse_matrix;
-            int64_t m_y;
-            int64_t m_x;
+            size_t m_y;
+            size_t m_x;
         };
 
         class Row {
         public:
-            Row(SparseMatrix<T, N> *ptr_sparse_matrix, int64_t y) :
+            Row(SparseMatrix<T, N> *ptr_sparse_matrix, size_t y) :
                     m_ptr_sparse_matrix(ptr_sparse_matrix), m_y(y){};
             ~Row() = default;
 
-            Value operator[](int64_t x) {
+            Value operator[](size_t x) {
                 return Value(m_ptr_sparse_matrix, m_y, x);
             }
 
-            T operator[] (int64_t x) const {
+            T operator[] (size_t x) const {
                 return m_ptr_sparse_matrix->get_value(m_y, x);
             }
 
         private:
             SparseMatrix<T, N> *m_ptr_sparse_matrix;
-            int64_t m_y;
+            size_t m_y;
         };
 
         size_t size() const {
             return m_data.size();
         };
 
-        Row operator[](int64_t y) {
+        Row operator[](size_t y) {
             return Row(this, y);
         }
 
         struct Iterator {
-            using value_type=std::tuple<int64_t, int64_t, T>;
+            using value_type=std::tuple<size_t, size_t, T>;
             using difference_type=std::ptrdiff_t;
             using pointer=value_type*;
             using reference=value_type&;
@@ -94,7 +94,7 @@ namespace otus {
             return Iterator(m_data.end());
         }
 
-        void set_value(int64_t y, int64_t x, T value) {
+        void set_value(size_t y, size_t x, T value) {
             auto coords = std::make_tuple(y, x);
             auto it = m_data.find(coords);
             if (it == m_data.end() && value != default_value) {
@@ -108,7 +108,7 @@ namespace otus {
             }
         }
 
-        T get_value(int64_t y, int64_t x) const {
+        T get_value(size_t y, size_t x) const {
             auto it = m_data.find(std::make_tuple(y, x));
             if (it == m_data.end())
                 return default_value;
