@@ -3,7 +3,8 @@
 
 namespace otus {
 
-    template <typename T, T N>
+    template <typename T, T N,
+              typename std::enable_if<std::is_integral<T>::value>::type* = nullptr>
     class SparseMatrix {
         const static T default_value = N;
 
