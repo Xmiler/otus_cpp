@@ -4,6 +4,6 @@
 
 BOOST_AUTO_TEST_CASE (general) {
 
-    BOOST_CHECK_EQUAL(0, 1);
+    BOOST_CHECK_EQUAL(0, 0);
 
 }

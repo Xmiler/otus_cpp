@@ -1,4 +1,7 @@
 cmake_minimum_required(VERSION 3.16.3)
+if(NOT DEFINED ENV{TRAVIS_BUILD_NUMBER})
+    set(ENV{TRAVIS_BUILD_NUMBER} 111)
+endif()
 project(sparse_matrix VERSION 0.0.$ENV{TRAVIS_BUILD_NUMBER})
 enable_testing()
 
