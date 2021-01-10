@@ -25,8 +25,13 @@ namespace otus {
                     m_ptr_sparse_matrix(ptr_sparse_matrix), m_y(y), m_x(x) {};
             ~Value() = default;
 
-            Value& operator=(const T& value) {
-                m_ptr_sparse_matrix->set_value(m_y, m_x, value);
+            Value& operator=(const Value& value) {
+                m_ptr_sparse_matrix->set_value(m_y, m_x, T(value));
+                return *this;
+            }
+
+            Value& operator=(const T& v) {
+                m_ptr_sparse_matrix->set_value(m_y, m_x, v);
                 return *this;
             }
 

@@ -2,18 +2,24 @@
 
 int main() {
 
-    otus::SparseMatrix<int, -1> matrix;
+    otus::SparseMatrix<int, 0> matrix;
 
-    std::cout << matrix.size() << std::endl;
+    constexpr int num = 10;
+    for (int i = 1; i < num; i++)
+        matrix[i][i] = matrix[num-i-1][i] = i;
 
-    (matrix[100][100] = 314) = 413;
-
-    std::cout << matrix[100][100] << std::endl;
-
-    std::cout << matrix.size() << std::endl;
-
-    for(const auto& [x, y, v] : matrix) {
-        std::cout << x << y << v << std::endl;
+    for (int i = 1; i < 9; i++) {
+        for (int j = 1; j < 9; j++) {
+            printf("%i ", int(matrix[i][j]));
+        }
+        printf("\n");
     }
+    printf("\nCount of occupied cells: %zu\n", matrix.size());
+
+    printf("\nThese cells are:\n");
+    for (const auto& [x, y, v] : matrix) {
+        printf("matrix[%zu][%zu]=%i\n", x, y, v);
+    }
+
     return 0;
 }

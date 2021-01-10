@@ -50,9 +50,13 @@ BOOST_AUTO_TEST_CASE (check_canonical_assignment) {
     otus::SparseMatrix<int, default_value> matrix;
 
     ((matrix[11][22] = 1122) = 2211) = 3333;
-
     BOOST_CHECK_EQUAL(matrix[11][22], 3333);
     BOOST_CHECK_EQUAL(matrix.size(), 1);
+
+    matrix[1][2] = matrix[11][22] = 1234;
+    BOOST_CHECK_EQUAL(matrix[1][2], 1234);
+    BOOST_CHECK_EQUAL(matrix[11][22], 1234);
+    BOOST_CHECK_EQUAL(matrix.size(), 2);
 }
 
 BOOST_AUTO_TEST_CASE (check_itetator) {
