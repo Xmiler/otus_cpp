@@ -1,5 +1,6 @@
 #pragma once
 #include <iostream>
+#include <fstream>
 #include <unordered_set>
 
 class Handler;
@@ -31,5 +32,5 @@ public:
     void report(const std::string& message) override;
 
 private:
-    const std::string m_path;
+    std::ofstream m_outfile;
 };

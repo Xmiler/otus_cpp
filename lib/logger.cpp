@@ -1,4 +1,5 @@
 #include <iostream>
+
 #include "logger.h"
 #include "handler.h"
 
@@ -17,8 +18,10 @@ void ConsoleLogger::report(const std::string& message) {
     std::cout << message;
 }
 
-FileLogger::FileLogger(Handler* handler_ptr, std::string path) : ILogger(handler_ptr), m_path(std::move(path)) {}
+FileLogger::FileLogger(Handler* handler_ptr, std::string path) : ILogger(handler_ptr), m_outfile(std::move(path), std::ofstream::out) {
+
+}
 
 void FileLogger::report(const std::string& message) {
-    std::cout << "[writing to the file] " << message;
+    m_outfile << message;
 }

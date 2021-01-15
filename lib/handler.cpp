@@ -43,7 +43,6 @@ void Handler::report(const std::string& message) {
         logger->report(message);
 }
 
-
 void Handler::process_cmd(const std::string& cmd) {
     if (cmd == "{") {
         m_nesting++;
