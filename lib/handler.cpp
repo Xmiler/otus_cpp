@@ -1,7 +1,6 @@
 #include <iostream>
 #include <sstream>
 #include <iterator>
-#include <memory>
 #include <string>
 #include "handler.h"
 #include "logger.h"
@@ -34,13 +33,16 @@ void Handler::release() {
     std::stringstream output;
     std::copy(m_bulk.begin(), std::prev(m_bulk.end()), std::ostream_iterator<std::string>(output, ", "));
     output << m_bulk.back() << std::endl;
-    auto output_str = output.str();
-
     m_bulk.clear();
 
-    for (const auto& logger : m_loggers )
-        logger->report(output_str);
+    report(output.str());
 }
+
+void Handler::report(const std::string& message) {
+    for (const auto& logger : m_loggers )
+        logger->report(message);
+}
+
 
 void Handler::process_cmd(const std::string& cmd) {
     if (cmd == "{") {
