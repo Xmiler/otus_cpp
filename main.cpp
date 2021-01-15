@@ -1,6 +1,7 @@
 #include <iostream>
 #include <sstream>
 #include <string>
+#include <cassert>
 #include <queue>
 
 class Processor {
@@ -11,65 +12,58 @@ class Processor {
     };
 
 public:
-    explicit Processor(int n) : m_n(n), m_status(Status::normal) {}
+    explicit Processor(int n) : m_n(n), m_status(Status::normal), m_nesting(0) {}
     ~Processor()=default;
 
-    void process(const std::string& cmd) {
-        switch(m_status) {
-            case Status::normal:
-                if (cmd == "{") {
-                    release();
-                    m_status = Status::dynamic;
-                }
-                else {
-                    add(cmd);
-                    if ( m_pool.size() == m_n )
-                        release();
-                }
-                break;
-            case Status::dynamic:
-                if (cmd == "}") {
-                    release();
-                    m_status = Status::normal;
-                }
-                else {
-                    add(cmd);
-                }
-                break;
+    void process(std::stringstream& input) {
+        std::string cmd;
+        while(std::getline(input, cmd)) {
+            process_cmd(cmd);
         }
-
     }
 
 private:
     const int m_n;
-    std::queue<std::string> m_pool;
+    std::queue<std::string> m_bulk;
     Status m_status;
+    int m_nesting;
 
-    void add(const std::string &cmd) {
-        m_pool.push(cmd);
+    void collect(const std::string &cmd) {
+        m_bulk.push(cmd);
     }
 
     void release() {
-        while (!m_pool.empty()) {
-            std::cout << m_pool.front();
-            m_pool.pop();
-            if (!m_pool.empty())
+        while (!m_bulk.empty()) {
+            std::cout << m_bulk.front();
+            m_bulk.pop();
+            if (!m_bulk.empty())
                 std::cout << ", ";
+            else
+                std::cout << std::endl;
         }
-        std::cout << std::endl;
+    }
+
+    void process_cmd(const std::string& cmd) {
+        if (cmd == "{") {
+            m_nesting++;
+            if (m_nesting == 1)
+                release();
+        } else if (cmd == "}") {
+            m_nesting--;
+            if (m_nesting == 0)
+                release();
+        } else {
+            collect(cmd);
+            if (m_nesting == 0 && m_bulk.size() == m_n)
+                release();
+        }
     }
 };
 
 
 int main() {
 
-    std::stringstream input("cmd1\ncmd2\n{\ncmd3\ncmd4\ncmd5\ncmd6\n}\ncmd7\ncmd8\ncmd9\ncmd10\ncmd11\ncmd12\n");
-
-    auto processor = Processor(3);
-
-    std::string cmd;
-    while(std::getline(input, cmd)) {
-        processor.process(cmd);
-    }
+    std::stringstream input("cmd1\ncmd2\n{\ncmd3\ncmd4\n}\n{\ncmd5\ncmd6\n{\ncmd7\ncmd8\n}\ncmd9\n}\n{\ncmd10\ncmd11\n");
+    Processor(3).process(input1);
 
 }
