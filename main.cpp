@@ -4,19 +4,50 @@
 #include <queue>
 
 class Processor {
+
+    enum class Status {
+        normal,
+        dynamic
+    };
+
 public:
-    explicit Processor(int n) : m_n(n) {}
+    explicit Processor(int n) : m_n(n), m_status(Status::normal) {}
+    ~Processor()=default;
 
     void process(const std::string& cmd) {
-        m_pool.push(cmd);
-        if (m_pool.size() == m_n) {
-            release();
+        switch(m_status) {
+            case Status::normal:
+                if (cmd == "{") {
+                    release();
+                    m_status = Status::dynamic;
+                }
+                else {
+                    add(cmd);
+                    if ( m_pool.size() == m_n )
+                        release();
+                }
+                break;
+            case Status::dynamic:
+                if (cmd == "}") {
+                    release();
+                    m_status = Status::normal;
+                }
+                else {
+                    add(cmd);
+                }
+                break;
         }
+
     }
 
 private:
-    int m_n;
+    const int m_n;
     std::queue<std::string> m_pool;
+    Status m_status;
+
+    void add(const std::string &cmd) {
+        m_pool.push(cmd);
+    }
 
     void release() {
         while (!m_pool.empty()) {
@@ -32,7 +63,7 @@ private:
 
 int main() {
 
-    std::stringstream input("cmd1\ncmd2\ncmd3\ncmd4\ncmd5\ncmd6\ncmd7\ncmd8\ncmd9\n");
+    std::stringstream input("cmd1\ncmd2\n{\ncmd3\ncmd4\ncmd5\ncmd6\n}\ncmd7\ncmd8\ncmd9\ncmd10\ncmd11\ncmd12\n");
 
     auto processor = Processor(3);
 
