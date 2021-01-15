@@ -16,7 +16,11 @@ void Handler::process(std::stringstream& input) {
 }
 
 void Handler::subscribe(ILogger* logger_ptr) {
-    m_loggers.push_back(logger_ptr);
+    m_loggers.insert(logger_ptr);
+}
+
+void Handler::unsubscribe(ILogger* logger_ptr) {
+    m_loggers.erase(logger_ptr);
 }
 
 void Handler::collect(const std::string &cmd) {

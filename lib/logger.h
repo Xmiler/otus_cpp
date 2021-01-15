@@ -1,27 +1,35 @@
 #pragma once
 #include <iostream>
+#include <unordered_set>
+
+class Handler;
 
 class ILogger {
 public:
+    explicit ILogger(Handler* handler_ptr);
+    virtual ~ILogger();
+
     virtual void report(const std::string&) = 0;
+
+protected:
+    Handler* m_handler_ptr;
 };
 
 class ConsoleLogger : public ILogger {
 public:
-//    ConsoleLogger() = default;
-//    ~ConsoleLogger() = default;
+    explicit ConsoleLogger(Handler*);
+    ~ConsoleLogger() override = default;
 
     void report(const std::string& message) override;
+
 };
 
-//class FileLogger : public ILogger {
-//public:
-//    explicit FileLogger(std::string path) : m_path(std::move(path)) {};
-//
-//    void report(const std::string& message) override {
-//        std::cout << "[writing to the file] " << message;
-//    }
-//
-//private:
-//    const std::string m_path;
-//};
+class FileLogger : public ILogger {
+public:
+    explicit FileLogger(Handler*, std::string);
+
+    void report(const std::string& message) override;
+
+private:
+    const std::string m_path;
+};
