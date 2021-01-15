@@ -10,7 +10,7 @@ find_package(Boost COMPONENTS unit_test_framework REQUIRED)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-add_executable(bulk main.cpp lib/handler.cpp)
+add_executable(bulk main.cpp lib/handler.cpp lib/logger.cpp)
 
 add_executable(tests tests.cpp)
 target_include_directories(tests PRIVATE ${Boost_INCLUDE_DIRS})
