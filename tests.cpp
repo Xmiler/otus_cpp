@@ -40,10 +40,19 @@ BOOST_AUTO_TEST_CASE (with_single_nesting) {
     BOOST_CHECK_EQUAL(output_str, expected_str);
 }
 
-//BOOST_AUTO_TEST_CASE (with_multiple_nesting) {
-//
-//    std::string output_str = process("0\n1\n{\n2\n3\n{\n4\n5}\n\n6\n}\n7\n8\n9\n10\n");
-//    std::string expected_str = "0, 1\n2, 3, 4, 5, 6\n7, 8, 9\n10\n";
-//
-//    BOOST_CHECK_EQUAL(output_str, expected_str);
-//}
+BOOST_AUTO_TEST_CASE (with_multiple_nesting) {
+
+    std::string output_str = process("0\n1\n{\n2\n3\n{\n4\n5\n}\n6\n}\n7\n8\n9\n10\n");
+    std::string expected_str = "0, 1\n2, 3, 4, 5, 6\n7, 8, 9\n10\n";
+
+    BOOST_CHECK_EQUAL(output_str, expected_str);
+}
+
+BOOST_AUTO_TEST_CASE (with_multiple_nesting_interrupted) {
+
+    std::string output_str = process("0\n1\n{\n2\n3\n{\n4\n5\n}\n6\n}\n7\n8\n{\n9\n10\n");
+    std::string expected_str = "0, 1\n2, 3, 4, 5, 6\n7, 8\n";
+
+    BOOST_CHECK_EQUAL(output_str, expected_str);
+}
+
