@@ -12,6 +12,8 @@ void Handler::process(std::stringstream& input) {
     while(std::getline(input, cmd)) {
         process_cmd(cmd);
     }
+    if (!m_nesting)
+        release();
 }
 
 void Handler::subscribe(ILogger* logger_ptr) {

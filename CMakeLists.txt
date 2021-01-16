@@ -12,7 +12,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 add_executable(bulk main.cpp lib/handler.cpp lib/logger.cpp)
 
-add_executable(tests tests.cpp)
+add_executable(tests tests.cpp lib/handler.cpp lib/logger.cpp)
 target_include_directories(tests PRIVATE ${Boost_INCLUDE_DIRS})
 target_compile_definitions(tests PRIVATE "BOOST_TEST_DYN_LINK=1")
 target_link_libraries(tests ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})

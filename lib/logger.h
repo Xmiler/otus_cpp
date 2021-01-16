@@ -16,13 +16,15 @@ protected:
     Handler* m_handler_ptr;
 };
 
-class ConsoleLogger : public ILogger {
+class StandardLogger : public ILogger {
 public:
-    explicit ConsoleLogger(Handler*);
-    ~ConsoleLogger() override = default;
+    explicit StandardLogger(Handler*, std::ostream& input = std::cout);
+    ~StandardLogger() override = default;
 
     void report(const std::string& message) override;
 
+private:
+    std::ostream& m_output;
 };
 
 class FileLogger : public ILogger {

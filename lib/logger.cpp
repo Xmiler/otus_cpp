@@ -11,11 +11,11 @@ ILogger::~ILogger() {
     m_handler_ptr->subscribe(this);
 }
 
-ConsoleLogger::ConsoleLogger(Handler* handler_ptr) : ILogger(handler_ptr) {
+StandardLogger::StandardLogger(Handler* handler_ptr, std::ostream& output) : ILogger(handler_ptr), m_output(output) {
 }
 
-void ConsoleLogger::report(const std::string& message) {
-    std::cout << message;
+void StandardLogger::report(const std::string& message) {
+    m_output << message;
 }
 
 FileLogger::FileLogger(Handler* handler_ptr, std::string path) : ILogger(handler_ptr), m_outfile(std::move(path), std::ofstream::out) {
