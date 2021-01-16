@@ -22,7 +22,7 @@ private:
     std::unordered_set<ILogger*> m_loggers;
 
     void collect(const std::string&) ;
-    void release();
+    void try_to_release();
     void process_cmd(const std::string&);
     void report(const std::string&);
 };

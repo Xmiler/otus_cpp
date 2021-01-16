@@ -12,8 +12,7 @@ void Handler::process(std::stringstream& input) {
     while(std::getline(input, cmd)) {
         process_cmd(cmd);
     }
-    if (!m_nesting)
-        release();
+    try_to_release();
 }
 
 void Handler::subscribe(ILogger* logger_ptr) {
@@ -28,8 +27,10 @@ void Handler::collect(const std::string &cmd) {
     m_bulk.push_back(cmd);
 }
 
-void Handler::release() {
+void Handler::try_to_release() {
     if (m_bulk.empty())
+        return;
+    if (m_nesting > 0)
         return;
 
     std::stringstream output;
@@ -47,16 +48,14 @@ void Handler::report(const std::string& message) {
 
 void Handler::process_cmd(const std::string& cmd) {
     if (cmd == "{") {
+        try_to_release();
         m_nesting++;
-        if (m_nesting == 1)
-            release();
     } else if (cmd == "}") {
         m_nesting--;
-        if (m_nesting == 0)
-            release();
+        try_to_release();
     } else {
         collect(cmd);
-        if (m_nesting == 0 && m_bulk.size() == m_n)
-            release();
+        if (m_bulk.size() == m_n)
+            try_to_release();
     }
 }
