@@ -23,6 +23,6 @@ private:
 
     void collect(const std::string&) ;
     void release();
-    void process_cmd(const std::string&, bool);
+    void process_cmd(const std::string&);
     void report(const std::string&);
 };
