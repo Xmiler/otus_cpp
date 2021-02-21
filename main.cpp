@@ -9,6 +9,7 @@ int main() {
     StandardLogger console_logger(&handler);
     FileLogger file_logger(&handler);
 
-    std::stringstream input("cmd1\ncmd2\n{\ncmd3\ncmd4\n}\n{\ncmd5\ncmd6\n{\ncmd7\ncmd8\n}\ncmd9\n}\n{\ncmd10\ncmd11\n");
-    handler.process(input);
+    std::stringstream in;
+    in << std::cin.rdbuf();
+    handler.process(in);
 }
