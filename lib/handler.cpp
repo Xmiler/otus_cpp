@@ -16,10 +16,14 @@ void Handler::process(std::stringstream& input) {
 }
 
 void Handler::subscribe(ILogger* logger_ptr) {
+    if ( m_loggers.count(logger_ptr) )
+        throw std::runtime_error("tried to add already existing logger_ptr");
     m_loggers.insert(logger_ptr);
 }
 
 void Handler::unsubscribe(ILogger* logger_ptr) {
+    if ( !m_loggers.count(logger_ptr) )
+        throw std::runtime_error("tried to remove already absent logger_ptr");
     m_loggers.erase(logger_ptr);
 }
 
