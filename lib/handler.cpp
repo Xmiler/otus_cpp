@@ -5,7 +5,7 @@
 #include "handler.h"
 #include "logger.h"
 
-Handler::Handler(int n) : m_n(n), m_nesting(0) {}
+Handler::Handler(int n) : m_n(n), m_nesting(0), m_timestamp_ptr(nullptr) {}
 
 void Handler::process(std::stringstream& input) {
     std::string cmd;
@@ -23,6 +23,12 @@ void Handler::unsubscribe(ILogger* logger_ptr) {
     m_loggers.erase(logger_ptr);
 }
 
+std::time_t Handler::get_timestamp() {
+    if ( m_timestamp_ptr == nullptr )
+        throw std::runtime_error("Handler::get_timestamp() was called before the first command was executed.");
+    return *m_timestamp_ptr;
+}
+
 void Handler::collect(const std::string &cmd) {
     m_bulk.push_back(cmd);
 }
@@ -32,6 +38,9 @@ void Handler::try_to_release() {
         return;
     if (m_nesting > 0)
         return;
+
+    if ( m_timestamp_ptr == nullptr )
+        m_timestamp_ptr.reset(new std::time_t(std::time(nullptr)));
 
     std::stringstream output;
     std::copy(m_bulk.begin(), std::prev(m_bulk.end()), std::ostream_iterator<std::string>(output, ", "));

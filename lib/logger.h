@@ -1,6 +1,7 @@
 #pragma once
 #include <iostream>
 #include <fstream>
+#include <memory>
 #include <unordered_set>
 
 class Handler;
@@ -29,10 +30,10 @@ private:
 
 class FileLogger : public ILogger {
 public:
-    explicit FileLogger(Handler*, std::string);
+    FileLogger(Handler*);
 
     void report(const std::string& message) override;
 
 private:
-    std::ofstream m_outfile;
+    std::unique_ptr<std::ofstream> m_ofstream_ptr;
 };

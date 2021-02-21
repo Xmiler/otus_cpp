@@ -56,3 +56,13 @@ BOOST_AUTO_TEST_CASE (with_multiple_nesting_interrupted) {
     BOOST_CHECK_EQUAL(output_str, expected_str);
 }
 
+BOOST_AUTO_TEST_CASE (multiple_file_loggers) {
+
+    std::stringstream input("0, 1, 2\n3, 4, 5\n6, 7, 8\n");
+
+    Handler handler(3);
+    FileLogger file_logger(&handler);
+    FileLogger file_logger2(&handler);
+
+    BOOST_CHECK_THROW(handler.process(input), std::runtime_error);
+}
